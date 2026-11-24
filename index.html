@@ -24,7 +24,10 @@ button{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--star);outline-offset:2px}
 
 .page{max-width:480px;margin:0 auto;padding:34px 16px 150px}
-.head{color:var(--brand-ink);padding:0 6px 26px}
+.head{position:relative;color:var(--brand-ink);padding:0 6px 26px}
+/* same soft bubble as the PVC card and standee */
+.head::after{content:"";position:absolute;right:-90px;top:-150px;width:300px;height:300px;border-radius:50%;background:var(--brand-ink);opacity:.06;pointer-events:none}
+body{overflow-x:hidden}
 .head h1{font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin:0;text-wrap:balance}
 .head p{margin:8px 0 0;font-size:15px;opacity:.75}
 
