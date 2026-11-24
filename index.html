@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Review Us</title>
+<style>
+:root{
+  --bg:#f6f4ef; --card:#ffffff; --ink:#1d1b16; --muted:#6b665c; --line:#e4dfd3;
+  --accent:#1a73e8; --accent-ink:#ffffff; --chip:#f1ede4; --chip-on:#1d1b16; --chip-on-ink:#ffffff; --ok:#188038;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14130f; --card:#1e1c17; --ink:#f2efe8; --muted:#a39e92; --line:#34312a;
+    --chip:#2a2721; --chip-on:#f2efe8; --chip-on-ink:#14130f; --ok:#81c995; }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:520px;margin:0 auto;padding:20px 16px 130px}
+header{display:flex;gap:14px;align-items:center;margin:8px 0 18px}
+.logo{flex:none;width:56px;height:56px;border-radius:16px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:20px}
+h1{font-size:20px;margin:0;line-height:1.2}
+.sub{color:var(--muted);font-size:14px;margin-top:2px}
+.demo{background:#fff3cd;color:#664d03;border-radius:12px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.qt{font-weight:600;margin:0 0 10px;font-size:15px}
+.qt small{color:var(--muted);font-weight:400}
+.moods{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.mood{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:14px;padding:10px 4px;font:inherit;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.mood b{font-size:28px;line-height:1;font-weight:400}
+.mood.on{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:10px 15px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
+.hidden{display:none!important}
+.btn{width:100%;border:0;border-radius:14px;padding:15px 16px;font:inherit;font-weight:600;font-size:16px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%)}
+.bar .inner{max-width:520px;margin:0 auto}
+.skip{display:block;text-align:center;color:var(--muted);font-size:13px;margin-top:8px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px;z-index:10}
+.modal .box{background:var(--card);color:var(--ink);border-radius:20px;padding:18px;max-width:420px;width:100%;max-height:92vh;overflow:auto}
+.modal h2{margin:0 0 10px;font-size:18px;color:var(--ok)}
+.modal textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:12px;padding:10px;font:inherit;font-size:14px;background:var(--bg);color:var(--ink);resize:vertical}
+.linkbtn{background:none;border:0;color:var(--muted);font:inherit;font-size:13px;padding:4px 0;cursor:pointer}
+.modal ol{padding-left:20px;margin:8px 0 14px;font-size:15px}
+.modal li{margin:3px 0}
+.err{text-align:center;color:var(--muted);padding:60px 16px}
+.powered{text-align:center;color:var(--muted);font-size:12px;margin:22px 0 0}
+.powered a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="demo hidden" id="demo">Demo mode: yeh sample business hai.</div>
+  <header>
+    <div class="logo" id="logo"></div>
+    <div>
+      <h1 id="bizName"></h1>
+      <div class="sub" id="bizSub"></div>
+    </div>
+  </header>
+
+  <div class="card">
+    <p class="qt">Aapka experience kaisa raha?</p>
+    <div class="moods" id="moods"></div>
+  </div>
+
+  <div id="qs"></div>
+  <p class="powered" id="powered"></p>
+</div>
+
+<div class="bar" id="bar">
+  <div class="inner">
+    <button class="btn primary" id="go" type="button" disabled>⭐ Google pe review post karo</button>
+    <a class="skip" id="skip" href="#">Khud likhna hai? Seedha Google kholo →</a>
+  </div>
+</div>
+
+<div class="modal hidden" id="modal">
+  <div class="box">
+    <h2>✓ Aapka review copy ho gaya</h2>
+    <textarea id="out" aria-label="Review text"></textarea>
+    <button class="linkbtn" id="regen" type="button">🔄 Dusra version banao</button>
+    <ol>
+      <li>Google pe <b>stars</b> chunein</li>
+      <li>Review box mein <b>long-press → Paste</b> karein</li>
+      <li><b>Post</b> dabayein. Bas!</li>
+    </ol>
+    <button class="btn primary" id="openG" type="button">Google kholo →</button>
+  </div>
+</div>
+
+<script src="presets.js"></script>
+<script>
+/* ---------- Aapki company (har page ke neeche dikhti hai) ---------- */
+const BRAND = { name: "ProbFixora", contact: "" };   // contact: "+91 98xxxxxx00" ya "probfixora.com"
+
+/* ---------- Config: card ke link se aata hai ---------- */
+const q = new URLSearchParams(location.search);
+const isHex = s => /^[0-9a-fA-F]{6}$/.test(s || "");
+const safeId = s => /^[A-Za-z0-9_-]{4,200}$/.test(s || "");
+function reviewUrlFrom(q){
+  if (safeId(q.get("g"))) return "https://g.page/r/" + q.get("g") + "/review";
+  if (safeId(q.get("p"))) return "https://search.google.com/local/writereview?placeid=" + q.get("p");
+  const u = q.get("u") || "";
+  return /^https:\/\//i.test(u) ? u : "";
+}
+let C, demo = false;
+if (q.get("n")) {
+  C = { name:q.get("n"), type:q.get("t")||"other", area:q.get("a")||"", city:q.get("c")||"",
+        color:isHex(q.get("k")) ? "#"+q.get("k") : "", url:reviewUrlFrom(q) };
+} else {
+  demo = true;
+  C = { name:"Brew & Bite Cafe", type:"cafe", area:"Vaishali Nagar", city:"Jaipur", color:"", url:"https://search.google.com/local/writereview?placeid=DEMO" };
+}
+const P = window.REVIEW_PRESETS[C.type] || window.REVIEW_PRESETS.other;
+
+/* ---------- Templates ---------- */
+const OPEN = {
+  great:["Had an amazing experience at {name}, {loc}.","Visited {name} in {loc} and absolutely loved it.","{name} is a fantastic {noun} in {city}.","Really happy with my visit to {name}, {city}."],
+  good:["Had a really good experience at {name}, {loc}.","Visited {name} in {loc} recently and it was a nice experience.","Good experience overall at {name}, {city}."],
+  okay:["Decent experience at {name}, {loc}.","My visit to {name} in {city} was okay overall."],
+  bad:["My recent visit to {name}, {loc} was disappointing.","Not a great experience at {name} in {city} this time."]
+};
+const SEO = ["Easily one of the best {nouns} in {area}.","Definitely one of the top {nouns} in {city}.","My go-to {noun} in {loc}."];
+const LIKE = ["Especially loved {list}.","Really impressed with {list}.","What stood out for me was {list}."];
+const LIKE_OK = ["Liked {list}.","Appreciated {list}."];
+const IMPROVE = ["Felt that {list} could be improved.","{List} could be better."];
+const CLOSE = {
+  great:["Highly recommended!","Will definitely come back.","A must-visit in {city}!","Totally worth it, highly recommend."],
+  good:["Would recommend it.","Will visit again.","Worth a visit."],
+  okay:["Hope it gets better next time.","Worth a try."],
+  bad:["Hope the management looks into this.","Hope they improve soon."]
+};
+const MOODS = [["great","😍","Zabardast"],["good","🙂","Achha"],["okay","😐","Theek-thaak"],["bad","😞","Kharab"]];
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
+const lowFirst = s => s.charAt(0).toLowerCase()+s.slice(1);
+const joinList = a => a.length<2 ? (a[0]||"") : a.slice(0,-1).join(", ")+" and "+a[a.length-1];
+const loc = C.area ? C.area+", "+C.city : C.city;
+const fill = s => s.replace(/\{loc\}/g,loc).replace(/\{name\}/g,C.name).replace(/\{city\}/g,C.city||C.area)
+  .replace(/\{area\}/g,C.area||C.city).replace(/\{nouns\}/g,P.nouns).replace(/\{noun\}/g,P.noun);
+const tpl = (arr, list) => fill(pick(arr)).replace("{List}",cap(list)).replace("{list}",list);
+
+const state = { mood:"", sel:{ extra:new Set(), like:new Set(), imp:new Set() } };
+
+/* ---------- UI ---------- */
+function applyTheme(){
+  if(!C.color) return;
+  const r=parseInt(C.color.slice(1,3),16), g=parseInt(C.color.slice(3,5),16), b=parseInt(C.color.slice(5,7),16);
+  const lum=(0.299*r+0.587*g+0.114*b)/255;
+  document.documentElement.style.setProperty("--accent",C.color);
+  document.documentElement.style.setProperty("--accent-ink",lum>0.6?"#1d1b16":"#ffffff");
+}
+function initials(n){ return n.split(/\s+/).filter(w=>/[A-Za-z0-9]/.test(w)).slice(0,2).map(w=>w.match(/[A-Za-z0-9]/)[0].toUpperCase()).join(""); }
+
+function header(){
+  $("#bizName").textContent = C.name;
+  $("#bizSub").textContent = loc ? "📍 " + loc : "Aapka feedback hamare liye important hai 🙏";
+  $("#logo").textContent = initials(C.name);
+  document.title = "Review " + C.name;
+  if(demo) $("#demo").classList.remove("hidden");
+  const pw = $("#powered");
+  pw.append("Powered by ");
+  const b = document.createElement("b"); b.textContent = BRAND.name; pw.append(b);
+  if(BRAND.contact){
+    const c = BRAND.contact.trim(), digits = c.replace(/[^\d+]/g,"");
+    const a = document.createElement("a");
+    a.href = /^\+?\d{8,}$/.test(digits) ? "tel:"+digits : (/^https?:\/\//.test(c) ? c : "https://"+c);
+    a.textContent = c; a.rel = "noopener";
+    pw.append(" · ", a);
+  }
+}
+
+function renderMoods(){
+  const box=$("#moods");
+  MOODS.forEach(([k,e,l])=>{
+    const b=document.createElement("button"); b.type="button"; b.className="mood"; b.dataset.m=k;
+    b.innerHTML="<b>"+e+"</b><span>"+l+"</span>";
+    b.onclick=()=>{ state.mood=k; box.querySelectorAll(".mood").forEach(x=>x.classList.toggle("on",x===b)); renderQs(); $("#go").disabled=!C.url; };
+    box.appendChild(b);
+  });
+}
+
+function chipQuestion(key, title, type, options){
+  const c=document.createElement("div"); c.className="card";
+  const t=document.createElement("p"); t.className="qt";
+  t.innerHTML = title + (type==="multi" ? ' <small>(ek se zyada chun sakte hain)</small>' : '');
+  c.appendChild(t);
+  const chips=document.createElement("div"); chips.className="chips";
+  const s=state.sel[key];
+  options.forEach(o=>{
+    const label=o[0];
+    const ch=document.createElement("button"); ch.type="button"; ch.className="chip"+(s.has(label)?" on":""); ch.textContent=label;
+    ch.onclick=()=>{
+      if(type==="single"){ const had=s.has(label); s.clear(); chips.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); if(!had){ s.add(label); ch.classList.add("on"); } }
+      else { s.has(label)?s.delete(label):s.add(label); ch.classList.toggle("on"); }
+    };
+    chips.appendChild(ch);
+  });
+  c.appendChild(chips);
+  return c;
+}
+
+function renderQs(){
+  const root=$("#qs"); root.innerHTML="";
+  const m=state.mood;
+  if(P.extra) root.appendChild(chipQuestion("extra", P.extra.t, P.extra.type, P.extra.o));
+  if(m!=="bad") root.appendChild(chipQuestion("like", m==="okay"?"Kya achha laga?":"Kya sabse achha laga?", "multi", P.aspects));
+  if(m==="okay"||m==="bad") root.appendChild(chipQuestion("imp", "Kya behtar ho sakta hai?", "multi", P.aspects));
+}
+
+/* ---------- Review generator ---------- */
+function generate(){
+  const m=state.mood, good = m==="great"||m==="good";
+  const parts=[fill(pick(OPEN[m]))];
+
+  const ex=P.extra, exSel=[...state.sel.extra];
+  if(ex && exSel.length){
+    if(ex.type==="single"){ const o=ex.o.find(o=>o[0]===exSel[0]); if(o) parts.push(fill(pick(good?o[1].good:o[1].bad))); }
+    else parts.push(tpl(ex.say, joinList(shuffle(ex.o.filter(o=>state.sel.extra.has(o[0])).map(o=>o[1])))));
+  }
+
+  const likes = m==="bad" ? [] : P.aspects.filter(a=>state.sel.like.has(a[0])).map(a=>a[1]);
+  if(likes.length) parts.push(tpl(m==="okay"?LIKE_OK:LIKE, joinList(shuffle(likes))));
+
+  if(good && Math.random()<0.75) parts.push(fill(pick(SEO)));
+
+  const imps = (m==="okay"||m==="bad") ? P.aspects.filter(a=>state.sel.imp.has(a[0])).map(a=>a[2]||a[1]) : [];
+  if(imps.length){ const s=tpl(IMPROVE, joinList(shuffle(imps))); parts.push(likes.length ? "However, "+lowFirst(s) : s); }
+
+  parts.push(fill(pick(CLOSE[m])));
+  return parts.join(" ");
+}
+
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }
+  catch(e){
+    const ta=document.createElement("textarea"); ta.value=t; ta.setAttribute("readonly","");
+    ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0,99999);
+    let ok=false; try{ ok=document.execCommand("copy"); }catch(_){}
+    ta.remove(); return ok;
+  }
+}
+
+$("#go").onclick = async ()=>{
+  if(!state.mood) return;
+  const text=generate();
+  $("#out").value=text;
+  await copyText(text);
+  $("#modal").classList.remove("hidden");
+};
+$("#regen").onclick = async ()=>{ const t=generate(); $("#out").value=t; await copyText(t); };
+$("#openG").onclick = async ()=>{ await copyText($("#out").value.trim()); if(demo){ alert("Demo mode: asli card mein yahan Google review khulega."); return; } location.href=C.url; };
+$("#modal").onclick = e => { if(e.target.id==="modal") $("#modal").classList.add("hidden"); };
+$("#skip").onclick = e => { e.preventDefault(); if(!C.url || demo) return; location.href=C.url; };
+
+if(!C.url && !demo){
+  $("#app").innerHTML='<div class="err">Yeh card abhi sahi se setup nahi hua hai.<br>Kripya staff ko batayein.</div>';
+  $("#bar").classList.add("hidden");
+} else {
+  applyTheme(); header(); renderMoods();
+}
+</script>
+</body>
+</html>

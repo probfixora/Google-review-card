@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Review Card Maker</title>
+<style>
+:root{
+  --bg:#f4f3ef; --card:#ffffff; --ink:#1b1a17; --muted:#6b675e; --line:#e2ded4;
+  --accent:#1a73e8; --accent-ink:#fff; --soft:#f0eee8; --ok:#188038; --warn:#b06000; --bad:#c5221f;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#131210; --card:#1d1c19; --ink:#f1eee7; --muted:#a29d92; --line:#33312c; --soft:#272521;
+    --accent:#8ab4f8; --accent-ink:#131210; --ok:#81c995; --warn:#fdd663; --bad:#f28b82; }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{max-width:1180px;margin:0 auto;padding:22px 16px 6px}
+.top h1{margin:0;font-size:22px}
+.top p{margin:4px 0 0;color:var(--muted)}
+.grid{max-width:1180px;margin:0 auto;padding:12px 16px 40px;display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){ .grid{grid-template-columns:minmax(0,1fr)} }
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+.panel h2{font-size:16px;margin:0 0 12px}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
+label small{font-weight:400;color:var(--muted)}
+input,select{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px 11px;font:inherit}
+input[type=color]{padding:3px;height:42px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.help{font-size:12.5px;color:var(--muted);margin-top:5px}
+.msg{font-size:13px;margin-top:6px}
+.msg.ok{color:var(--ok)} .msg.warn{color:var(--warn)} .msg.bad{color:var(--bad)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button,.btnlink{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:10px;padding:9px 13px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.url{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;word-break:break-all}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){ .cards{grid-template-columns:1fr} }
+.cardprev svg{width:100%;height:auto;display:block;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.cardprev .cap{font-size:12px;color:var(--muted);margin:6px 0 0}
+.standee{max-width:300px}
+.standee svg{width:100%;height:auto;display:block;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px}
+.dot{width:14px;height:14px;border-radius:50%;flex:none}
+.item .meta{flex:1;min-width:0}
+.item .meta b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .meta span{font-size:12.5px;color:var(--muted)}
+.item button{padding:6px 10px;font-size:13px}
+.empty{color:var(--muted);font-size:14px}
+details{margin-top:10px}
+summary{cursor:pointer;font-size:13px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>📇 Review Card Maker</h1>
+  <p>Business ki details daalo → customer link + print-ready PVC card ready.</p>
+</div>
+
+<div class="grid">
+  <div>
+    <section class="panel">
+      <h2>1. Business details</h2>
+      <label for="fName">Business ka naam *</label>
+      <input id="fName" placeholder="Jaise: Sharma Sweets" maxlength="40">
+
+      <label for="fType">Business type *</label>
+      <select id="fType"></select>
+
+      <div class="two">
+        <div><label for="fArea">Area <small>(optional)</small></label><input id="fArea" placeholder="Vaishali Nagar" maxlength="30"></div>
+        <div><label for="fCity">Shehar *</label><input id="fCity" placeholder="Jaipur" maxlength="25"></div>
+      </div>
+
+      <label for="fLink">Google review link *</label>
+      <input id="fLink" placeholder="https://g.page/r/XXXX/review">
+      <div class="msg" id="linkMsg"></div>
+      <details>
+        <summary>Review link kahan se milega?</summary>
+        <div class="help">
+          <b>Tareeka 1 (best):</b> Business owner ke phone mein Google Maps → apni business profile → <b>"Ask for reviews" / "Get more reviews"</b> → link copy karo. Link <code>g.page/r/…/review</code> jaisa hoga.<br><br>
+          <b>Tareeka 2:</b> Google ka "Place ID Finder" page kholo, business search karo, Place ID (ChIJ… se shuru) copy karke yahan paste karo.
+        </div>
+      </details>
+
+      <div class="two">
+        <div><label for="fColor">Card ka color</label><input id="fColor" type="color" value="#16161a"></div>
+        <div><label for="fTag">Card par line</label><input id="fTag" value="Tap to review us on Google" maxlength="40"></div>
+      </div>
+
+      <div class="btns">
+        <button class="primary" id="save" type="button">💾 Client save karo</button>
+        <button id="newC" type="button">＋ Naya client</button>
+      </div>
+      <div class="msg" id="saveMsg"></div>
+    </section>
+
+    <section class="panel">
+      <h2>⚙️ Settings <small style="font-weight:400;color:var(--muted)">(ek baar)</small></h2>
+      <label for="sBase">Aapki website ka link</label>
+      <input id="sBase" placeholder="https://your-site.pages.dev/">
+      <div class="help">Jahan yeh folder host kiya hai (Cloudflare Pages / Netlify). Har card ka link isi se banega.</div>
+      <label for="sAgency">Card ke peeche "Powered by" <small>(aapka brand, optional)</small></label>
+      <input id="sAgency" placeholder="ProbFixora" maxlength="40">
+      <label for="sContact">Aapka contact <small>(phone / website, card aur standee pe chhapega)</small></label>
+      <input id="sContact" placeholder="Jaise: +91 98xxxxxx00 · probfixora.com" maxlength="45">
+    </section>
+  </div>
+
+  <div>
+    <section class="panel">
+      <h2>2. Customer link <small style="font-weight:400;color:var(--muted)">(yahi NFC card mein likhna hai)</small></h2>
+      <div class="url" id="url">Details bharo…</div>
+      <div class="msg" id="nfcMsg"></div>
+      <div class="btns">
+        <button id="copyUrl" type="button">📋 Link copy</button>
+        <a class="btnlink" id="testLocal" href="#" target="_blank" rel="noopener">👀 Page test karo</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>3. PVC card design <small style="font-weight:400;color:var(--muted)">(85.6 × 54 mm, ATM card size)</small></h2>
+      <div class="cards">
+        <div class="cardprev"><div id="front"></div><p class="cap">Front</p></div>
+        <div class="cardprev"><div id="back"></div><p class="cap">Back (QR, un phones ke liye jinme NFC nahi)</p></div>
+      </div>
+      <div class="btns">
+        <button class="primary" id="dlPng" type="button">⬇️ Front + Back PNG (600 dpi)</button>
+        <button id="dlSvg" type="button">⬇️ SVG (vector)</button>
+      </div>
+      <div class="msg" id="qrMsg"></div>
+    </section>
+
+    <section class="panel">
+      <h2>4. QR Standee design <small style="font-weight:400;color:var(--muted)">(4 × 6 inch, counter pe rakhne wala)</small></h2>
+      <div class="standee"><div id="standee"></div></div>
+      <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input id="sNfc" type="checkbox" style="width:auto"> Standee pe NFC sticker bhi lagayenge ("Scan or Tap" dikhega)</label>
+      <div class="btns">
+        <button class="primary" id="dlStandee" type="button">⬇️ Standee PNG (300 dpi)</button>
+        <button id="dlStandeeSvg" type="button">⬇️ SVG (vector)</button>
+      </div>
+      <div class="help">Printer ko bolo: 4×6 inch PVC / sunboard standee, peeche stand ke saath. A5 size chahiye to bhi yahi file chalegi (ratio same rakhna).</div>
+    </section>
+
+    <section class="panel">
+      <h2>📁 Saved clients</h2>
+      <div class="list" id="list"></div>
+      <div class="btns">
+        <button id="exp" type="button">⬇️ Backup (JSON)</button>
+        <button id="imp" type="button">⬆️ Backup se load</button>
+        <input id="impFile" type="file" accept=".json,application/json" hidden>
+      </div>
+      <div class="help">Clients isi browser mein save hote hain. Kabhi-kabhi Backup download karte raho.</div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="presets.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const PRESETS = window.REVIEW_PRESETS;
+const W = 1011, H = 638; // CR80 @ 300 dpi
+const FONT = "'Segoe UI',Roboto,Arial,Helvetica,sans-serif";
+const KC = "nfcr_clients", KS = "nfcr_settings";
+
+/* ---------- storage (safe) ---------- */
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch(e) { return d; } };
+const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e) { return false; } };
+let clients = load(KC, []);
+let settings = load(KS, {});
+let currentId = null;
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const slug = s => (s||"card").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "card";
+const initials = n => n.split(/\s+/).filter(w=>/[A-Za-z0-9]/.test(w)).slice(0,2).map(w=>w.match(/[A-Za-z0-9]/)[0].toUpperCase()).join("") || "★";
+function lum(hex){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return (0.299*r+0.587*g+0.114*b)/255; }
+const fgFor = hex => lum(hex) > 0.6 ? "#16161a" : "#ffffff";
+function wrap(text, max){ const out=[]; let cur=""; for(const w of String(text).trim().split(/\s+/)){ if(cur && (cur+" "+w).length>max){ out.push(cur); cur=w; } else cur=(cur?cur+" ":"")+w; } if(cur) out.push(cur); return out; }
+
+function parseLink(s){
+  s = (s||"").trim(); let m;
+  if(!s) return { err:"Google review link daalo." };
+  if((m = s.match(/g\.page\/r\/([A-Za-z0-9_-]+)/))) return { g:m[1], ok:"✓ Sahi review link (g.page)." };
+  if((m = s.match(/[?&]placeid=([A-Za-z0-9_-]+)/i))) return { p:m[1], ok:"✓ Sahi review link (Place ID)." };
+  if(/^ChIJ[A-Za-z0-9_-]{10,}$/.test(s)) return { p:s, ok:"✓ Place ID mil gaya." };
+  if(/^https:\/\//i.test(s)){
+    const warn = /maps\.app\.goo\.gl|google\.[a-z.]+\/maps|goo\.gl\/maps/i.test(s)
+      ? "⚠️ Yeh Maps ka place link lagta hai, review ka direct link nahi. Isse review box seedha nahi khulega. 'Ask for reviews' wala link ya Place ID use karo."
+      : "⚠️ Link pehchana nahi gaya. Kaam kar sakta hai, par ek baar test zaroor karo.";
+    return { u:s, warn };
+  }
+  return { err:"Link https:// se shuru hona chahiye, ya Place ID (ChIJ…) daalo." };
+}
+
+function readForm(){
+  return {
+    name: $("#fName").value.trim(), type: $("#fType").value,
+    area: $("#fArea").value.trim(), city: $("#fCity").value.trim(),
+    link: $("#fLink").value.trim(), color: $("#fColor").value, tag: $("#fTag").value.trim() || "Tap to review us on Google"
+  };
+}
+function writeForm(d){
+  $("#fName").value=d.name||""; $("#fType").value=d.type||"res"; $("#fArea").value=d.area||""; $("#fCity").value=d.city||"";
+  $("#fLink").value=d.link||""; $("#fColor").value=d.color||"#16161a"; $("#fTag").value=d.tag||"Tap to review us on Google";
+}
+
+function baseUrl(){
+  let b = (settings.base||"").trim();
+  if(!b) return "";
+  if(!/^https?:\/\//i.test(b)) b = "https://" + b;
+  if(!/\.html?$/i.test(b) && !b.endsWith("/")) b += "/";
+  return b;
+}
+function params(d, L){
+  const p = new URLSearchParams();
+  p.set("n", d.name); p.set("t", d.type);
+  if(d.area) p.set("a", d.area);
+  if(d.city) p.set("c", d.city);
+  if(L.g) p.set("g", L.g); else if(L.p) p.set("p", L.p); else if(L.u) p.set("u", L.u);
+  if(d.color && d.color.toLowerCase() !== "#16161a") p.set("k", d.color.slice(1));
+  return p.toString();
+}
+
+/* ---------- card SVGs ---------- */
+function starPts(cx, cy, r){
+  const pts=[]; for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*0.45:r; pts.push((cx+rr*Math.cos(a)).toFixed(1)+","+(cy+rr*Math.sin(a)).toFixed(1)); }
+  return pts.join(" ");
+}
+function stars(x, y, r, gap){ let s=""; for(let i=0;i<5;i++) s+=`<polygon points="${starPts(x+r+i*gap, y, r)}" fill="#f5b301"/>`; return s; }
+
+function frontSVG(d){
+  const bg=d.color, fg=fgFor(bg);
+  const name = d.name || "Business Name";
+  const nl = wrap(name, 20).slice(0,2);
+  const ns = nl.length>1 ? 40 : (name.length>15 ? 44 : 52);
+  const loc = d.area ? d.area+", "+d.city : d.city;
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  s+=`<rect width="${W}" height="${H}" fill="${bg}"/>`;
+  s+=`<circle cx="${W-40}" cy="40" r="300" fill="${fg}" fill-opacity="0.05"/><circle cx="${W-40}" cy="40" r="190" fill="${fg}" fill-opacity="0.05"/>`;
+  s+=`<rect x="70" y="66" width="100" height="100" rx="24" fill="${fg}" fill-opacity="0.14"/>`;
+  s+=`<text x="120" y="131" text-anchor="middle" font-family="${FONT}" font-size="40" font-weight="700" fill="${fg}">${esc(initials(name))}</text>`;
+  const ny = nl.length>1 ? 106 : 122;
+  nl.forEach((l,i)=>{ s+=`<text x="196" y="${ny+i*(ns+6)}" font-family="${FONT}" font-size="${ns}" font-weight="700" fill="${fg}">${esc(l)}</text>`; });
+  if(loc) s+=`<text x="196" y="${ny+(nl.length-1)*(ns+6)+40}" font-family="${FONT}" font-size="25" fill="${fg}" fill-opacity="0.72">${esc(loc)}</text>`;
+  const tl = wrap(d.tag, 17).slice(0,2);
+  tl.forEach((l,i)=>{ s+=`<text x="70" y="${340+i*72}" font-family="${FONT}" font-size="62" font-weight="800" fill="${fg}">${esc(l)}</text>`; });
+  s+=stars(70, 340+(tl.length-1)*72+70, 24, 60);
+  // contactless symbol
+  const cx=800, cy=395;
+  s+=`<circle cx="${cx}" cy="${cy}" r="13" fill="${fg}"/>`;
+  for(let i=0;i<3;i++){ const r=48+i*38, a=Math.PI/4;
+    s+=`<path d="M ${(cx+r*Math.cos(-a)).toFixed(1)} ${(cy+r*Math.sin(-a)).toFixed(1)} A ${r} ${r} 0 0 1 ${(cx+r*Math.cos(a)).toFixed(1)} ${(cy+r*Math.sin(a)).toFixed(1)}" fill="none" stroke="${fg}" stroke-width="15" stroke-linecap="round"/>`; }
+  s+=`<text x="${cx+70}" y="560" text-anchor="middle" font-family="${FONT}" font-size="26" font-weight="700" letter-spacing="5" fill="${fg}">TAP HERE</text>`;
+  s+=`<text x="70" y="582" font-family="${FONT}" font-size="23" fill="${fg}" fill-opacity="0.7">Phone ko card par tap karein</text>`;
+  return s+"</svg>";
+}
+
+function qrPath(text, x, y, size){
+  if(typeof qrcode !== "function") return null;
+  const qr = qrcode(0, "M"); qr.addData(text); qr.make();
+  const n = qr.getModuleCount(), q = 2, cell = size/(n+q*2);
+  let d="";
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(qr.isDark(r,c)){
+    d+=`M${(x+(c+q)*cell).toFixed(2)} ${(y+(r+q)*cell).toFixed(2)}h${cell.toFixed(2)}v${cell.toFixed(2)}h-${cell.toFixed(2)}z`;
+  }
+  return d;
+}
+
+function backSVG(d, url){
+  const accent = lum(d.color) < 0.85 ? d.color : "#16161a";
+  const name = d.name || "Business Name";
+  const loc = d.area ? d.area+", "+d.city : d.city;
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  s+=`<rect width="${W}" height="${H}" fill="#ffffff"/><rect width="${W}" height="18" fill="${accent}"/>`;
+  const qx=58, qy=78, qs=490;
+  s+=`<rect x="${qx}" y="${qy}" width="${qs}" height="${qs}" rx="20" fill="#ffffff" stroke="#e5e2da" stroke-width="3"/>`;
+  const p = qrPath(url, qx+6, qy+6, qs-12);
+  s += p ? `<path d="${p}" fill="#111111"/>` : `<text x="${qx+qs/2}" y="${qy+qs/2}" text-anchor="middle" font-family="${FONT}" font-size="26" fill="#999">QR (internet chahiye)</text>`;
+  const x=592;
+  s+=`<text x="${x}" y="140" font-family="${FONT}" font-size="25" font-weight="700" letter-spacing="4" fill="${accent}">SCAN OR TAP</text>`;
+  s+=`<text x="${x}" y="206" font-family="${FONT}" font-size="52" font-weight="800" fill="#16161a">Review us</text>`;
+  s+=`<text x="${x}" y="266" font-family="${FONT}" font-size="52" font-weight="800" fill="#16161a">on Google</text>`;
+  s+=stars(x, 318, 20, 50);
+  const nl = wrap(name, 20).slice(0,2);
+  nl.forEach((l,i)=>{ s+=`<text x="${x}" y="${412+i*38}" font-family="${FONT}" font-size="31" font-weight="700" fill="#16161a">${esc(l)}</text>`; });
+  if(loc) s+=`<text x="${x}" y="${412+(nl.length-1)*38+36}" font-family="${FONT}" font-size="23" fill="#6b675e">${esc(loc)}</text>`;
+  if(settings.agency){
+    const y0 = settings.contact ? 566 : 590;
+    s+=`<text x="${x}" y="${y0}" font-family="${FONT}" font-size="20" fill="#8a857a">Powered by <tspan font-weight="700" fill="#4a463e">${esc(settings.agency)}</tspan></text>`;
+    if(settings.contact) s+=`<text x="${x}" y="596" font-family="${FONT}" font-size="19" fill="#8a857a">${esc(settings.contact)}</text>`;
+  }
+  return s+"</svg>";
+}
+
+/* 4x6 inch standee @ 300 dpi */
+const SW = 1200, SH = 1800;
+function standeeSVG(d, url, nfc){
+  const bg=d.color, fg=fgFor(bg);
+  const accent = lum(bg) < 0.85 ? bg : "#16161a";
+  const name = d.name || "Business Name";
+  const loc = d.area ? d.area+", "+d.city : d.city;
+  const nl = wrap(name, 22).slice(0,2);
+  const ns = nl.length>1 ? 62 : (name.length>16 ? 66 : 76);
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${SW}" height="${SH}" viewBox="0 0 ${SW} ${SH}">`;
+  s+=`<rect width="${SW}" height="${SH}" fill="#ffffff"/>`;
+  s+=`<path d="M0 0H${SW}V470Q${SW/2} 540 0 470Z" fill="${bg}"/>`;
+  s+=`<circle cx="${SW-80}" cy="40" r="300" fill="${fg}" fill-opacity="0.05"/><circle cx="60" cy="430" r="180" fill="${fg}" fill-opacity="0.05"/>`;
+  s+=`<rect x="${SW/2-66}" y="62" width="132" height="132" rx="32" fill="${fg}" fill-opacity="0.15"/>`;
+  s+=`<text x="${SW/2}" y="148" text-anchor="middle" font-family="${FONT}" font-size="56" font-weight="700" fill="${fg}">${esc(initials(name))}</text>`;
+  const ny = nl.length>1 ? 282 : 300;
+  nl.forEach((l,i)=>{ s+=`<text x="${SW/2}" y="${ny+i*(ns+10)}" text-anchor="middle" font-family="${FONT}" font-size="${ns}" font-weight="800" fill="${fg}">${esc(l)}</text>`; });
+  if(loc) s+=`<text x="${SW/2}" y="${ny+(nl.length-1)*(ns+10)+60}" text-anchor="middle" font-family="${FONT}" font-size="36" fill="${fg}" fill-opacity="0.75">${esc(loc)}</text>`;
+  s+=`<text x="${SW/2}" y="${nfc?622:640}" text-anchor="middle" font-family="${FONT}" font-size="30" font-weight="700" letter-spacing="6" fill="${accent}">${nfc?"SCAN OR TAP":"SCAN TO"}</text>`;
+  s+=`<text x="${SW/2}" y="${nfc?706:724}" text-anchor="middle" font-family="${FONT}" font-size="82" font-weight="800" fill="#16161a">Review us on Google</text>`;
+  s+=stars(SW/2 - (4*74+2*34)/2, nfc?778:796, 34, 74);
+  const qs=740, qx=(SW-qs)/2, qy=850;
+  s+=`<rect x="${qx-14}" y="${qy-14}" width="${qs+28}" height="${qs+28}" rx="40" fill="none" stroke="${accent}" stroke-width="8"/>`;
+  const p = qrPath(url, qx, qy, qs);
+  s += p ? `<path d="${p}" fill="#111111"/>` : `<text x="${SW/2}" y="${qy+qs/2}" text-anchor="middle" font-family="${FONT}" font-size="34" fill="#999">QR (internet chahiye)</text>`;
+  s+=`<text x="${SW/2}" y="${qy+qs+80}" text-anchor="middle" font-family="${FONT}" font-size="38" fill="#4a463e">${nfc?"Camera se scan karein ya phone yahan tap karein":"Phone camera se scan karke review dein"}</text>`;
+  s+=`<line x1="120" y1="1700" x2="${SW-120}" y2="1700" stroke="#e5e2da" stroke-width="3"/>`;
+  if(settings.agency){
+    const label = settings.contact ? `Powered by ${settings.agency}  ·  ${settings.contact}` : `Powered by ${settings.agency}`;
+    s+=`<text x="${SW/2}" y="1752" text-anchor="middle" font-family="${FONT}" font-size="30" fill="#8a857a">${esc(label)}</text>`;
+  }
+  return s+"</svg>";
+}
+
+/* ---------- render ---------- */
+let last = { url:"", front:"", back:"", d:null };
+function render(){
+  const d = readForm();
+  const L = parseLink(d.link);
+  const lm = $("#linkMsg");
+  if(L.err){ lm.className="msg bad"; lm.textContent = d.link ? L.err : ""; }
+  else if(L.warn){ lm.className="msg warn"; lm.textContent = L.warn; }
+  else { lm.className="msg ok"; lm.textContent = L.ok; }
+
+  const ready = d.name && d.city && !L.err;
+  const qs = ready ? params(d, L) : "";
+  const base = baseUrl();
+  const url = ready ? (base || "https://YOUR-SITE/") + "?" + qs : "";
+  $("#url").textContent = ready ? url : "Naam, shehar aur review link bharo…";
+  $("#testLocal").href = ready ? "index.html?" + qs : "#";
+
+  const nm = $("#nfcMsg");
+  if(!ready){ nm.textContent=""; }
+  else if(!base){ nm.className="msg warn"; nm.textContent="⚠️ Settings mein apni website ka link daalo. Tab tak link adhoora hai, card mat likho."; }
+  else {
+    const len = url.replace(/^https?:\/\//i,"").length;
+    if(len <= 130){ nm.className="msg ok"; nm.textContent=`✓ ${len} characters: NTAG213 / 215 / 216, koi bhi NFC card chalega.`; }
+    else if(len <= 480){ nm.className="msg warn"; nm.textContent=`⚠️ ${len} characters: NTAG213 mein nahi aayega. NTAG215 ya NTAG216 card lena. (Ya naam / area chhota karo.)`; }
+    else { nm.className="msg bad"; nm.textContent=`✗ ${len} characters: bahut lamba hai. Naam/area chhota karo ya g.page link use karo.`; }
+  }
+
+  const front = frontSVG(d), back = backSVG(d, url || "https://example.com");
+  const standee = standeeSVG(d, url || "https://example.com", $("#sNfc").checked);
+  $("#front").innerHTML = front; $("#back").innerHTML = back; $("#standee").innerHTML = standee;
+  $("#qrMsg").className = typeof qrcode === "function" ? "msg" : "msg bad";
+  $("#qrMsg").textContent = typeof qrcode === "function" ? "" : "QR banane ke liye internet chahiye (QR library load nahi hui).";
+  last = { url, front, back, standee, d, ready };
+}
+
+/* ---------- downloads ---------- */
+function download(blob, name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000); }
+async function svgToPng(svg, scale, w=W, h=H){
+  const img = new Image();
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  await img.decode();
+  const c = document.createElement("canvas"); c.width=w*scale; c.height=h*scale;
+  const ctx = c.getContext("2d"); ctx.drawImage(img, 0, 0, c.width, c.height);
+  return new Promise(r => c.toBlob(r, "image/png"));
+}
+function guardReady(){
+  if(!last.ready){ alert("Pehle naam, shehar aur sahi review link bharo."); return false; }
+  if(!baseUrl()) return confirm("Website ka link abhi Settings mein nahi hai, isliye QR adhoora hoga. Phir bhi download karein?");
+  return true;
+}
+$("#dlPng").onclick = async ()=>{
+  if(!guardReady()) return;
+  const n = slug(last.d.name);
+  download(await svgToPng(last.front, 2), n+"-front-600dpi.png");
+  setTimeout(async ()=> download(await svgToPng(last.back, 2), n+"-back-600dpi.png"), 400);
+};
+$("#dlSvg").onclick = ()=>{
+  if(!guardReady()) return;
+  const n = slug(last.d.name);
+  download(new Blob([last.front],{type:"image/svg+xml"}), n+"-front.svg");
+  setTimeout(()=>download(new Blob([last.back],{type:"image/svg+xml"}), n+"-back.svg"), 400);
+};
+$("#dlStandee").onclick = async ()=>{
+  if(!guardReady()) return;
+  download(await svgToPng(last.standee, 1, SW, SH), slug(last.d.name)+"-standee-4x6-300dpi.png");
+};
+$("#dlStandeeSvg").onclick = ()=>{
+  if(!guardReady()) return;
+  download(new Blob([last.standee],{type:"image/svg+xml"}), slug(last.d.name)+"-standee-4x6.svg");
+};
+$("#sNfc").addEventListener("change", render);
+$("#copyUrl").onclick = async ()=>{
+  if(!last.ready) return;
+  try{ await navigator.clipboard.writeText(last.url); $("#copyUrl").textContent="✓ Copied"; }
+  catch(e){ prompt("Link copy karo:", last.url); }
+  setTimeout(()=>$("#copyUrl").textContent="📋 Link copy", 1500);
+};
+$("#testLocal").onclick = e => { if(!last.ready){ e.preventDefault(); } };
+
+/* ---------- clients ---------- */
+function renderList(){
+  const box=$("#list"); box.innerHTML="";
+  if(!clients.length){ box.innerHTML='<div class="empty">Abhi koi client save nahi hai.</div>'; return; }
+  clients.slice().sort((a,b)=>b.updated-a.updated).forEach(c=>{
+    const el=document.createElement("div"); el.className="item";
+    el.innerHTML=`<span class="dot" style="background:${esc(c.color)}"></span><div class="meta"><b>${esc(c.name)}</b><span>${esc((PRESETS[c.type]||{}).label||c.type)} · ${esc(c.area?c.area+", ":"")}${esc(c.city)}</span></div>`;
+    const open=document.createElement("button"); open.type="button"; open.textContent="Kholo";
+    open.onclick=()=>{ currentId=c.id; writeForm(c); render(); window.scrollTo({top:0,behavior:"smooth"}); };
+    const del=document.createElement("button"); del.type="button"; del.textContent="🗑";
+    del.onclick=()=>{ if(!confirm(`"${c.name}" ko list se hatana hai?`)) return; clients=clients.filter(x=>x.id!==c.id); store(KC,clients); if(currentId===c.id) currentId=null; renderList(); };
+    el.append(open, del); box.appendChild(el);
+  });
+}
+$("#save").onclick = ()=>{
+  const d = readForm(), m=$("#saveMsg");
+  if(!d.name || !d.city || parseLink(d.link).err){ m.className="msg bad"; m.textContent="Naam, shehar aur sahi review link zaroori hai."; return; }
+  const now=Date.now();
+  if(currentId && clients.some(c=>c.id===currentId)) clients = clients.map(c=>c.id===currentId ? {...c, ...d, updated:now} : c);
+  else { currentId = "c"+now.toString(36); clients.push({id:currentId, ...d, created:now, updated:now}); }
+  const ok = store(KC, clients);
+  m.className = ok ? "msg ok" : "msg warn";
+  m.textContent = ok ? "✓ Save ho gaya." : "⚠️ Is browser mein save nahi ho paaya. Backup download kar lo.";
+  renderList();
+};
+$("#newC").onclick = ()=>{ currentId=null; writeForm({}); $("#saveMsg").textContent=""; render(); $("#fName").focus(); };
+$("#exp").onclick = ()=> download(new Blob([JSON.stringify({clients, settings}, null, 2)],{type:"application/json"}), "review-cards-backup.json");
+$("#imp").onclick = ()=> $("#impFile").click();
+$("#impFile").onchange = async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    const data=JSON.parse(await f.text());
+    const incoming = Array.isArray(data) ? data : (data.clients||[]);
+    const ids = new Set(clients.map(c=>c.id));
+    incoming.forEach(c=>{ if(c && c.id && c.name && !ids.has(c.id)) clients.push(c); });
+    if(data.settings && !settings.base){ settings = {...data.settings, ...settings}; store(KS, settings); fillSettings(); }
+    store(KC, clients); renderList(); render();
+    alert(`${incoming.length} clients load ho gaye.`);
+  }catch(err){ alert("File sahi nahi hai."); }
+  e.target.value="";
+};
+
+/* ---------- settings ---------- */
+function fillSettings(){
+  if(!settings.base && /^https?:/.test(location.protocol) && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname))
+    settings.base = location.origin + location.pathname.replace(/admin\.html$/i, "");
+  if(settings.agency === undefined) settings.agency = "ProbFixora";
+  $("#sBase").value = settings.base||""; $("#sAgency").value = settings.agency||""; $("#sContact").value = settings.contact||"";
+}
+["sBase","sAgency","sContact"].forEach(id=> $("#"+id).addEventListener("input", ()=>{
+  settings = { base:$("#sBase").value.trim(), agency:$("#sAgency").value.trim(), contact:$("#sContact").value.trim() }; store(KS, settings); render();
+}));
+
+/* ---------- init ---------- */
+Object.entries(PRESETS).forEach(([k,p])=>{ const o=document.createElement("option"); o.value=k; o.textContent=p.label; $("#fType").appendChild(o); });
+["fName","fType","fArea","fCity","fLink","fColor","fTag"].forEach(id=> $("#"+id).addEventListener("input", render));
+fillSettings(); writeForm({}); renderList(); render();
+</script>
+</body>
+</html>
